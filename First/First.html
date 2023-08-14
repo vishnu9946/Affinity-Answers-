@@ -1,1 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <form id ="address-form">
+    <h1>address checking</h1>
+     <label for="address">Enter your address:</label><br>
+    <textarea name="address" id="address" cols="30" rows="10" placeholder="Enter Full Address..." ></textarea>
+    <button type="submit">submit</button>
+  </form>
+  <script>
+    document.getElementById('address-form').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevents the form from submitting
+    
+        // Get the address from the textarea
+        var addressText = document.getElementById('address').value;
+    
+        // Extract the pin code from the address
+        var pinCode = extractPinCode(addressText);
+        
+         // Function to extract pin code (you might need a more robust method)
+    function extractPinCode(address) {
+        var pinCodeRegex = /\b\d{6}\b/; 
+        var match = address.match(pinCodeRegex);
+        return match ? match[0] : null;
+    }
+    
+        
+        if (pinCode) {
+            var apiUrl = `https://api.postalpincode.in/pincode/${pinCode}`;
+            try{
+                var response = await fetch(apiUrl);
+                var data = await response.json();
+                console.log('API Response:', data);
+
+                if (data && data[0].Status === "Success") {
+                    var actualPinCodes = data[0].PostOffice.map(postOffice => postOffice.Pincode);
+                    console.log('Extracted Pin Code:', pinCode); 
+                    console.log('Actual Pin Codes:', actualPinCodes); 
+                
+                    if (actualPinCodes.includes(pinCode)) {
+                        console.log('Pin Code is correct for the given address!');
+                    } else {
+                        console.log('Pin Code is wrong for the given address!.');
+                    }
+                }else {
+                    console.log('Invalid response from API.');
+                }
+
+            }catch(error)
+            {
+                console.error('Error:', error);
+            }
+        } else {
+            console.log('Pin Code not found in address.');
+        }
+    });
+    
+   
+    </script>
+</body>
+</html>
 
